@@ -3,7 +3,7 @@ from pydub import AudioSegment
 from pydub.silence import split_on_silence
 import os
 from ..config.config import Config
-from ..files.names import get_brk_name
+from ..files.directories import get_or_create_base
 import click
 from pathlib import Path
 
@@ -39,13 +39,9 @@ def split_file_into_chunks(file_path, output_path, chunk_prefix):
     sound = AudioSegment.from_file(file_path)
     # spliting audio files
     audio_chunks = split_on_silence(sound, min_silence_len=500, silence_thresh=-40 )
-    
-    base_name = os.path.basename(Config().get_value("CURRENT_DIRECTORY"))
-    output_base = f"{output_path}/{base_name}"
-    chunk_prefix = Path(file_path).stem
 
-    if not os.path.exists(output_base):
-        os.makedirs(output_base)
+    output_base = get_or_create_base(output_path)
+    chunk_prefix = Path(file_path).stem
     output_folder = f"{output_base}/{chunk_prefix}"
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
